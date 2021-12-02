@@ -10,18 +10,24 @@ fn main() {
     let input = std::fs::read_to_string("input.txt").unwrap();
     let cmds = parse_commands(input);
 
-    let (final_x, final_z) = cmds.clone().into_iter().fold((0, 0), |(x, z), (dist, dir)| match dir {
-        Dir::Up => (x, z - dist),
-        Dir::Down => (x, z + dist),
-        Dir::Forward => (x + dist, z),
-    });
+    let (final_x, final_z) =
+        cmds.clone()
+            .into_iter()
+            .fold((0, 0), |(x, z), (dist, dir)| match dir {
+                Dir::Up => (x, z - dist),
+                Dir::Down => (x, z + dist),
+                Dir::Forward => (x + dist, z),
+            });
     println!("Part 1: {}", final_x * final_z);
 
-    let (final_x, final_z, _) = cmds.clone().into_iter().fold((0, 0, 0), |(x, z, a), (dist, dir)| match dir {
-        Dir::Up => (x, z, a - dist),
-        Dir::Down => (x, z, a + dist),
-        Dir::Forward => (x + dist, z + (a * dist), a),
-    });
+    let (final_x, final_z, _) =
+        cmds.clone()
+            .into_iter()
+            .fold((0, 0, 0), |(x, z, a), (dist, dir)| match dir {
+                Dir::Up => (x, z, a - dist),
+                Dir::Down => (x, z, a + dist),
+                Dir::Forward => (x + dist, z + (a * dist), a),
+            });
     println!("Part 2: {}", final_x * final_z);
 }
 
@@ -45,6 +51,6 @@ fn dir_from_str(str: String) -> Dir {
         "up" => Dir::Up,
         "down" => Dir::Down,
         "forward" => Dir::Forward,
-        _ => panic!("Invalid dir_str!")
+        _ => panic!("Invalid dir_str!"),
     }
 }
