@@ -15,21 +15,27 @@ fn filter_for_value(g_or_e: u8, input: String) -> u64 {
 
     let mut lines: Vec<&str> = input.split("\n").collect();
     for b in 0..num_bits {
-        if lines.len() == 1 { break; }
+        if lines.len() == 1 {
+            break;
+        }
 
-        let (gamma, epsilon) =  gamma_and_epsilon(lines.clone());
+        let (gamma, epsilon) = gamma_and_epsilon(lines.clone());
         let filter_bits = match g_or_e {
             0 => format!("{:012b}", gamma),
             1 => format!("{:012b}", epsilon),
             _ => unreachable!(),
         };
 
-        lines = lines.clone().into_iter().filter(|l| {
-            l.chars().nth(b).unwrap() == filter_bits.chars().nth(b).unwrap()
-        }).collect();
+        lines = lines
+            .clone()
+            .into_iter()
+            .filter(|l| l.chars().nth(b).unwrap() == filter_bits.chars().nth(b).unwrap())
+            .collect();
     }
 
-    if lines.len() > 1 { panic!("Filter didn't work!"); }
+    if lines.len() > 1 {
+        panic!("Filter didn't work!");
+    }
 
     let str = lines.get(0).unwrap();
     u64::from_str_radix(str, 2).unwrap()
@@ -45,26 +51,18 @@ fn gamma_and_epsilon(lines: Vec<&str>) -> (u32, u32) {
     for line in lines.clone() {
         let bits: Vec<String> = line.split("").map(|s| s.to_owned()).collect();
         for i in 0..num_bits {
-            match bits.get(i+1).unwrap().as_str() {
+            match bits.get(i + 1).unwrap().as_str() {
                 "0" => arr[i].0 += 1,
                 "1" => arr[i].1 += 1,
-                _ => {println!("UNEXPECTED BIT! in pos {}", i);},
+                _ => println!("UNEXPECTED BIT! in pos {}", i),
             }
         }
     }
     let mut gamma = String::from("");
     let mut epsilon = String::from("");
     for i in 0..num_bits {
-        if arr[i].0 < arr[i].1 {
-            gamma.push('1');
-            epsilon.push('0');
-        } else if arr[i].0 > arr[i].1 {
-            gamma.push('0');
-            epsilon.push('1');
-        } else {
-            gamma.push('1');
-            epsilon.push('0');
-        }
+        gamma.push(if arr[i].0 <= arr[i].1 { '1' } else { '0' });
+        epsilon.push(if arr[i].0 <= arr[i].1 { '0' } else { '1' });
     }
     // combine the digits
     let gx = u32::from_str_radix(gamma.as_str(), 2).unwrap();
