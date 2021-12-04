@@ -1,5 +1,5 @@
 fn main() {
-    let input = std::fs::read_to_string("input.txt").unwrap();
+   let input = std::fs::read_to_string("input.txt").unwrap();
 
     let (gamma, epsilon) = gamma_and_epsilon(input.trim().split("\n").collect());
     println!("Part 1: {}", gamma * epsilon);
@@ -27,7 +27,6 @@ fn filter_for_value(g_or_e: u8, input: String) -> u64 {
         };
 
         lines = lines
-            .clone()
             .into_iter()
             .filter(|l| l.chars().nth(b).unwrap() == filter_bits.chars().nth(b).unwrap())
             .collect();
@@ -58,16 +57,12 @@ fn gamma_and_epsilon(lines: Vec<&str>) -> (u32, u32) {
             }
         }
     }
-    let mut gamma = String::from("");
-    let mut epsilon = String::from("");
-    for i in 0..num_bits {
-        gamma.push(if arr[i].0 <= arr[i].1 { '1' } else { '0' });
-        epsilon.push(if arr[i].0 <= arr[i].1 { '0' } else { '1' });
-    }
-    // combine the digits
-    let gx = u32::from_str_radix(gamma.as_str(), 2).unwrap();
-    let ex = u32::from_str_radix(epsilon.as_str(), 2).unwrap();
-    (gx, ex)
+    (0..num_bits).into_iter().fold((0, 0), |(gamma, epsilon), i| {
+        let one_is_most_common = arr[i].0 <= arr[i].1;
+        let g_modifier = if one_is_most_common { 1 } else { 0 };
+        let e_modifier = if one_is_most_common { 0 } else { 1 };
+        ((gamma << 1) + g_modifier, (epsilon << 1) + e_modifier)
+    })
 }
 
 #[test]
