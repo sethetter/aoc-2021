@@ -22,8 +22,7 @@ fn main() {
         boards.push(board);
     }
 
-    let mut winning_board: Board = vec![];
-    let mut last_called_move: u32 = 0;
+    let mut winning_boards: Vec<(Board, u32)> = vec![];
     for m in moves {
         for b in 0..boards.len() {
             for x in 0..boards[b].len() {
@@ -33,25 +32,37 @@ fn main() {
                     }
                 }
             }
-            if board_wins(&boards[b].clone()) {
-                winning_board = boards[b].clone();
-                last_called_move = m.parse().unwrap();
-                break;
+            if board_wins(&boards[b].clone()) && board_not_in_collection(winning_boards.clone().into_iter().map(|(b, _)| b).collect(), boards[b].clone()){
+                winning_boards.push((boards[b].clone(), m.parse().unwrap()));
             }
-        }
-        if winning_board.len() > 0 {
-            break;
         }
     }
 
-    let sum_of_unmarked_numbers: u32 = winning_board
+    println!("Part 1: {}", final_score(winning_boards.first().unwrap().clone()));
+    println!("Part 2: {}", final_score(winning_boards.last().unwrap().clone()));
+}
+
+fn board_not_in_collection(boards: Vec<Board>, board: Board) -> bool {
+    let board_str = board_to_string(board);
+    boards.into_iter().find(|b| board_to_string(b.clone()) == board_str) == None
+}
+
+fn board_to_string(board: Board) -> String {
+    board.into_iter().flatten().map(|(x, _)| x).join(",")
+}
+
+fn final_score((board, winning_number): (Board, u32)) -> u32 {
+    println!("Board nums {}", board.clone().into_iter().flatten().filter_map(|(x, marked)| if !marked { Some(x) } else { None }).join(","));
+    let sum_of_unmarked_numbers: u32 = board.clone()
         .into_iter()
         .flatten()
         .filter(|(_, marked)| !*marked)
         .map(|(x, _)| x.parse::<u32>().unwrap())
         .sum();
 
-    println!("Part 1: {}", sum_of_unmarked_numbers * last_called_move);
+    println!("Sum {}", sum_of_unmarked_numbers);
+    println!("Num {}", winning_number);
+    return sum_of_unmarked_numbers * winning_number;
 }
 
 fn board_wins(board: &Board) -> bool {
